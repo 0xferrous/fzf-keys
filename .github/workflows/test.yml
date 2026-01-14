@@ -8,13 +8,11 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_VERSION: nightly-2026-01-01
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust: [stable, beta]
 
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +20,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@master
       with:
-        toolchain: ${{ matrix.rust }}
+        toolchain: ${{ env.RUST_VERSION }}
         components: clippy, rustfmt
 
     - name: Cache cargo registry
@@ -41,7 +39,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: target
-        key: ${{ runner.os }}-target-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-target-${{ env.RUST_VERSION }}-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Check formatting
       run: cargo fmt -- --check
