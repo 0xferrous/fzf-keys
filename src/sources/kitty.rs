@@ -26,6 +26,12 @@ use pyo3::prelude::*;
 /// - The kitty Python modules must be importable
 pub struct KittySource;
 
+impl Default for KittySource {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl KittySource {
     pub fn new() -> Self {
         Self
@@ -159,8 +165,7 @@ impl KittySource {
         combo: &str,
     ) -> Result<(Vec<Modifier>, String), Box<dyn std::error::Error>> {
         // Special case: if combo ends with "++", the key is "+"
-        if combo.ends_with("++") {
-            let mod_part = &combo[..combo.len() - 2];
+        if let Some(mod_part) = combo.strip_suffix("++") {
             let mut modifiers = Vec::new();
             if !mod_part.is_empty() {
                 for part in mod_part.split('+') {
