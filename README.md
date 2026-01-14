@@ -2,6 +2,8 @@
 
 Search through keybinds from various programs using fzf.
 
+![Demo](https://github.com/user-attachments/assets/3f50256e-17f6-47dd-bc56-cb29b04690c4)
+
 ## Usage
 
 ```bash
