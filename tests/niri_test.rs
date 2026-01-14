@@ -125,7 +125,10 @@ fn test_niri_cooldown_property() {
             && !k.modifiers.contains(&Modifier::Ctrl)
     });
 
-    assert!(scroll_bind.is_some(), "Should find Mod+WheelScrollDown keybind");
+    assert!(
+        scroll_bind.is_some(),
+        "Should find Mod+WheelScrollDown keybind"
+    );
     assert_eq!(
         scroll_bind.unwrap().cooldown_ms,
         Some(150),
@@ -140,9 +143,7 @@ fn test_niri_allow_when_locked_property() {
 
     let keybinds = source.discover().expect("Failed to parse config");
 
-    let audio_bind = keybinds
-        .iter()
-        .find(|k| k.key == "XF86AudioRaiseVolume");
+    let audio_bind = keybinds.iter().find(|k| k.key == "XF86AudioRaiseVolume");
 
     assert!(
         audio_bind.is_some(),
