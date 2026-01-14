@@ -7,11 +7,17 @@ Search through keybinds from various programs using fzf.
 ## Usage
 
 ```bash
-# Use default config location (~/.config/niri/config.kdl)
+# Use default niri config location (~/.config/niri/config.kdl)
 cargo run --quiet | fzf
 
-# Or specify a custom config path
+# Or specify a custom niri config path
 cargo run --quiet -- --niri-config /path/to/config.kdl | fzf
+
+# Search kitty keybinds (requires Python with kitty installed)
+cargo run --quiet -- --kitty | fzf
+
+# Or use nix develop shell (includes all dependencies)
+nix develop --command bash -c "cargo run --quiet -- --kitty | fzf"
 ```
 
 ## How Sources Work
@@ -49,6 +55,30 @@ Each source:
   - `allow-when-locked` - Works when session is locked
   - `allow-inhibiting` - Can be inhibited by applications
 - **Special keys**: XF86 keys, mouse buttons, wheel/touchpad scroll events
+
+### Kitty (`sources/kitty.rs`)
+
+- **Discovery method**: Uses PyO3 to call kitty's Python API directly
+- **Requirements**:
+  - Python 3.13+ with kitty installed
+  - PyO3 for Rust-Python interop
+- **How it works**:
+  - Calls `kitty.config.load_config()` to load kitty configuration
+  - Directly accesses `opts.keyboard_modes` to get all keybindings
+  - Detects the actual `kitty_mod` value (e.g., `ctrl+shift`) using `mod_to_names()`
+  - Expands all shortcuts with their real modifiers (shows `Ctrl+Shift+c` instead of `kitty_mod+c`)
+  - Converts each keybind to human-readable format using kitty's own `Shortcut.human_repr()` method
+- **Advantages**:
+  - Gets actual runtime keybinds (not just config file)
+  - Shows defaults, custom, and changed shortcuts
+  - Detects and expands `kitty_mod` to show the actual key combination
+  - No config file parsing needed - uses kitty's own config parser
+  - More reliable than parsing text output
+- **Supported modifiers**: `ctrl`/`control`, `shift`, `alt`/`opt`/`option`, `super`/`cmd`/`command` (all expanded from `kitty_mod`)
+- **Features**:
+  - Multi-key sequences: `ctrl+f>2`
+  - Actions with arguments captured in full
+  - Special keys handled: `+`, function keys, arrow keys, etc.
 
 ## Adding New Sources
 

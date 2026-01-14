@@ -1,2 +1,9 @@
 /target
 demo.gif
+
+# Direnv
+.direnv/
+
+# Nix
+result
+result-*
