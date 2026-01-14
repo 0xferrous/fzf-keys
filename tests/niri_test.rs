@@ -92,3 +92,84 @@ fn test_niri_multiple_modifiers() {
 
     assert!(multi_mod.is_some(), "Should find keybind with 3+ modifiers");
 }
+
+#[test]
+fn test_niri_repeat_property() {
+    let config_path = PathBuf::from("tests/niri-default-config.kdl");
+    let source = NiriSource::new(config_path);
+
+    let keybinds = source.discover().expect("Failed to parse config");
+
+    let overview_bind = keybinds
+        .iter()
+        .find(|k| k.key == "O" && k.modifiers.contains(&Modifier::Mod));
+
+    assert!(overview_bind.is_some(), "Should find Mod+O keybind");
+    assert_eq!(
+        overview_bind.unwrap().repeat,
+        Some(false),
+        "Mod+O should have repeat=false"
+    );
+}
+
+#[test]
+fn test_niri_cooldown_property() {
+    let config_path = PathBuf::from("tests/niri-default-config.kdl");
+    let source = NiriSource::new(config_path);
+
+    let keybinds = source.discover().expect("Failed to parse config");
+
+    let scroll_bind = keybinds.iter().find(|k| {
+        k.key == "WheelScrollDown"
+            && k.modifiers.contains(&Modifier::Mod)
+            && !k.modifiers.contains(&Modifier::Ctrl)
+    });
+
+    assert!(scroll_bind.is_some(), "Should find Mod+WheelScrollDown keybind");
+    assert_eq!(
+        scroll_bind.unwrap().cooldown_ms,
+        Some(150),
+        "Mod+WheelScrollDown should have cooldown-ms=150"
+    );
+}
+
+#[test]
+fn test_niri_allow_when_locked_property() {
+    let config_path = PathBuf::from("tests/niri-default-config.kdl");
+    let source = NiriSource::new(config_path);
+
+    let keybinds = source.discover().expect("Failed to parse config");
+
+    let audio_bind = keybinds
+        .iter()
+        .find(|k| k.key == "XF86AudioRaiseVolume");
+
+    assert!(
+        audio_bind.is_some(),
+        "Should find XF86AudioRaiseVolume keybind"
+    );
+    assert_eq!(
+        audio_bind.unwrap().allow_when_locked,
+        Some(true),
+        "XF86AudioRaiseVolume should have allow-when-locked=true"
+    );
+}
+
+#[test]
+fn test_niri_allow_inhibiting_property() {
+    let config_path = PathBuf::from("tests/niri-default-config.kdl");
+    let source = NiriSource::new(config_path);
+
+    let keybinds = source.discover().expect("Failed to parse config");
+
+    let escape_bind = keybinds
+        .iter()
+        .find(|k| k.key == "Escape" && k.modifiers.contains(&Modifier::Mod));
+
+    assert!(escape_bind.is_some(), "Should find Mod+Escape keybind");
+    assert_eq!(
+        escape_bind.unwrap().allow_inhibiting,
+        Some(false),
+        "Mod+Escape should have allow-inhibiting=false"
+    );
+}
